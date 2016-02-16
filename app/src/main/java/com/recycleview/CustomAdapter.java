@@ -2,6 +2,7 @@ package com.recycleview;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ public class CustomAdapter extends
 
     Context context;
     CustomAdapter adapter;
+    private Typeface ayaFont;
+
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -23,6 +26,7 @@ public class CustomAdapter extends
         adapter = this;
         LayoutInflater inflater = LayoutInflater.from(context);
 
+        ayaFont = Typeface.createFromAsset(context.getAssets(), "fonts/PDMS_Saleem_QuranFont-signed.ttf");
         // Inflate the custom layout
         View ayaView = inflater.inflate(R.layout.row_item, parent, false);
 
@@ -38,6 +42,7 @@ public class CustomAdapter extends
         // Set item views based on the data model
         TextView textView = holder.textView;
         textView.setText(ayaHolder.getAya());
+        textView.setTypeface(ayaFont);
 
     }
 

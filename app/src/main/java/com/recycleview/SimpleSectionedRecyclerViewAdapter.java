@@ -1,6 +1,7 @@
 package com.recycleview;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -85,6 +86,8 @@ public class SimpleSectionedRecyclerViewAdapter extends RecyclerView.Adapter<Rec
     public void onBindViewHolder(RecyclerView.ViewHolder sectionViewHolder, int position) {
         if (isSectionHeaderPosition(position)) {
             ((SectionViewHolder)sectionViewHolder).title.setText(mSections.get(position).title);
+            ((SectionViewHolder)sectionViewHolder).title.setTypeface(Typeface.createFromAsset(mContext.getAssets(), "fonts/PDMS_Saleem_QuranFont-signed.ttf"));
+
         }else{
             mBaseAdapter.onBindViewHolder(sectionViewHolder,sectionedPositionToPosition(position));
         }

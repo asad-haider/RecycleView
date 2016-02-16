@@ -1,14 +1,19 @@
 package com.recycleview;
 
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
+import android.text.style.TypefaceSpan;
 import android.view.View;
 
 import com.recycleview.pojo.Aya;
@@ -30,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     private GsonXml gsonXml;
     private LinearLayoutManager linearLayoutManager;
+    private Typeface ayaSeparatorFont;
+    private String ayaSeparator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+
+        ayaSeparatorFont = Typeface.createFromAsset(getAssets(), "fonts/Scheherazade-Regular.ttf");
+
+        ayaSeparator = Character.toString((char) 1757);
 
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
@@ -83,23 +94,79 @@ public class MainActivity extends AppCompatActivity {
 
         int sectionIndex = 0;
 
+//        for (int i = 0; i < surahArabic.length; i++) {
+//            Aya[] aya = surahArabic[i].getAya();
+//
+//            ArrayList<Integer> start = new ArrayList<>();
+//            ArrayList<Integer> end = new ArrayList<>();
+//
+//            sections.add(new SimpleSectionedRecyclerViewAdapter.Section(sectionIndex, surahArabic[i].getName()));
+//            String temp = new String();
+//
+//            for (int j = 0; j < aya.length; j++) {
+//                start.add(temp.length());
+//                temp += aya[j].getText() + "\n";
+//                end.add(temp.length());
+//            }
+//
+//            SpannableString spannableString = new SpannableString(temp);
+//
+//            final ArrayList<MyClickableSpan> clickableSpanArrayList = new ArrayList<>();
+//
+//            for (int j = 0; j < aya.length; j++) {
+//
+//                clickableSpanArrayList.add(new MyClickableSpan(aya[j].getText(),
+//                        Integer.parseInt(surahArabic[i].getIndex()),
+//                        Integer.parseInt(aya[j].getIndex())) {
+//                    @Override
+//                    public void onClick(View widget) {
+//
+//                        TextPaint ds = new TextPaint();
+//                        ds.setColor(Color.RED);
+//                        updateDrawState(ds);
+//
+//                        if (!isHighlightWord()) {
+//                            setHighlightWord(true);
+//                        }else{
+//                            setHighlightWord(false);
+//                        }
+//
+//
+//                        recyclerView.smoothScrollToPosition(getSurah());
+//                        widget.invalidate();
+//
+//
+//                        System.out.println("Aya Text: " + getAyaText());
+//                        System.out.println("Surah Index: " + getSurah());
+//                        System.out.println("Aya Index: " + getAya());
+//                        System.out.println("---------------------------");
+//
+//                        System.out.println("Length: " + clickableSpanArrayList.size());
+//
+//                    }
+//                });
+//
+//                spannableString.setSpan(clickableSpanArrayList.get(j), start.get(j), end.get(j), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+//            }
+
+
+
         for (int i = 0; i < surahArabic.length; i++) {
             Aya[] aya = surahArabic[i].getAya();
 
-            ArrayList<Integer> start = new ArrayList<>();
-            ArrayList<Integer> end = new ArrayList<>();
+//            ArrayList<Integer> start = new ArrayList<>();
+//            ArrayList<Integer> end = new ArrayList<>();
 
             sections.add(new SimpleSectionedRecyclerViewAdapter.Section(sectionIndex, surahArabic[i].getName()));
             String temp = new String();
 
-            for (int j = 0; j < aya.length; j++) {
-                start.add(temp.length());
-                temp += aya[j].getText() + "\n";
-                end.add(temp.length());
-            }
+//            for (int j = 0; j < aya.length; j++) {
+//                start.add(temp.length());
+//                temp += aya[j].getText() + "\n";
+//                end.add(temp.length());
+//            }
 
-            SpannableString spannableString = new SpannableString(temp);
-
+            SpannableStringBuilder sb = new SpannableStringBuilder();
             final ArrayList<MyClickableSpan> clickableSpanArrayList = new ArrayList<>();
 
             for (int j = 0; j < aya.length; j++) {
@@ -116,12 +183,12 @@ public class MainActivity extends AppCompatActivity {
 
                         if (!isHighlightWord()) {
                             setHighlightWord(true);
-                        }else{
+                        } else {
                             setHighlightWord(false);
                         }
 
 
-                        recyclerView.smoothScrollToPosition(getSurah());
+//                        recyclerView.smoothScrollToPosition(getSurah());
                         widget.invalidate();
 
 
@@ -131,16 +198,26 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("---------------------------");
 
                         System.out.println("Length: " + clickableSpanArrayList.size());
-                        
+
                     }
                 });
 
-                spannableString.setSpan(clickableSpanArrayList.get(j), start.get(j), end.get(j), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    sb.append(aya[j].getText(), clickableSpanArrayList.get(j), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    sb.append(" " + ayaSeparator + HelperFunctions.getCodeFromNumber(aya[j].getIndex()) + " ", new CustomTypefaceSpan("", ayaSeparatorFont), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                if ((j + 1) % 10 == 0){
+                    arrayList.add(new AyaHolder(new SpannableString(sb)));
+                    sb = new SpannableStringBuilder();
+                    sectionIndex++;
+                }
             }
 
-
-            arrayList.add(new AyaHolder(spannableString));
+            arrayList.add(new AyaHolder(new SpannableString(sb)));
             sectionIndex++;
+
         }
 
         final CustomAdapter adapter = new CustomAdapter(arrayList);
@@ -217,6 +294,47 @@ public class MainActivity extends AppCompatActivity {
 
         public void setAya(int aya) {
             this.aya = aya;
+        }
+    }
+
+    public class CustomTypefaceSpan extends TypefaceSpan {
+
+        private final Typeface newType;
+
+        public CustomTypefaceSpan(String family, Typeface type) {
+            super(family);
+            newType = type;
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            applyCustomTypeFace(ds, newType);
+        }
+
+        @Override
+        public void updateMeasureState(TextPaint paint) {
+            applyCustomTypeFace(paint, newType);
+        }
+
+        private  void applyCustomTypeFace(Paint paint, Typeface tf) {
+            int oldStyle;
+            Typeface old = paint.getTypeface();
+            if (old == null) {
+                oldStyle = 0;
+            } else {
+                oldStyle = old.getStyle();
+            }
+
+            int fake = oldStyle & ~tf.getStyle();
+            if ((fake & Typeface.BOLD) != 0) {
+                paint.setFakeBoldText(true);
+            }
+
+            if ((fake & Typeface.ITALIC) != 0) {
+                paint.setTextSkewX(-0.25f);
+            }
+
+            paint.setTypeface(tf);
         }
     }
 
