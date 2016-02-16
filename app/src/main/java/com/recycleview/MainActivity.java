@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> allAudioPaths;
     private MediaPlayer mediaPlayer;
     private int clickedCounter;
+    private int ayaNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("Length: " + clickableSpanArrayList.size());
 
                         int surahNumber = getSurah();
-                        int ayaNumber = getAya();
+                        ayaNumber = getAya();
                         int totalAya = clickableSpanArrayList.size();
 
 //                        if (surahNumber == 1 || surahNumber == 9) {
@@ -317,7 +318,6 @@ public class MainActivity extends AppCompatActivity {
                                     FileDescriptor fd = null;
                                     FileInputStream fis = null;
 
-
                                     try {
                                         fis = new FileInputStream(allAudioPaths.get(0));
                                         fd = fis.getFD();
@@ -360,7 +360,6 @@ public class MainActivity extends AppCompatActivity {
 
                                 FileDescriptor fd = null;
                                 FileInputStream fis = null;
-                                clickableSpanArrayList.get(clickedCounter).setHighlightWord(false);
                                 clickedCounter++;
 
                                     if (clickedCounter < allAudioPaths.size()) {
@@ -373,8 +372,10 @@ public class MainActivity extends AppCompatActivity {
                                                 mediaPlayer.setDataSource(fd);
                                                 mediaPlayer.prepare();
                                                 mediaPlayer.start();
-                                                clickableSpanArrayList.get(clickedCounter).setHighlightWord(true);
+                                                clickableSpanArrayList.get(ayaNumber - 1).setHighlightWord(false);
+                                                clickableSpanArrayList.get(ayaNumber++).setHighlightWord(true);
                                                 widget.invalidate();
+                                                recyclerView.getAdapter().notifyDataSetChanged();
                                             }
 
                                         } catch (IOException e) {
@@ -415,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                     sb = new SpannableStringBuilder();
                     sectionIndex++;
                 }
+
             }
 
             arrayList.add(new AyaHolder(new SpannableString(sb)));
@@ -435,6 +437,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Apply this adapter to the RecyclerView
         recyclerView.setAdapter(mSectionedAdapter);
+
+
     }
 
 
