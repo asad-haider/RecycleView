@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -18,6 +19,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.liulishuo.filedownloader.BaseDownloadTask;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private int clickedCounter;
     private int ayaNumber;
+    private MyClickableSpan lastClickedSpan = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,65 +113,13 @@ public class MainActivity extends AppCompatActivity {
 
         int sectionIndex = 0;
 
-//        for (int i = 0; i < surahArabic.length; i++) {
-//            Aya[] aya = surahArabic[i].getAya();
-//
-//            ArrayList<Integer> start = new ArrayList<>();
-//            ArrayList<Integer> end = new ArrayList<>();
-//
-//            sections.add(new SimpleSectionedRecyclerViewAdapter.Section(sectionIndex, surahArabic[i].getName()));
-//            String temp = new String();
-//
-//            for (int j = 0; j < aya.length; j++) {
-//                start.add(temp.length());
-//                temp += aya[j].getText() + "\n";
-//                end.add(temp.length());
-//            }
-//
-//            SpannableString spannableString = new SpannableString(temp);
-//
-//            final ArrayList<MyClickableSpan> clickableSpanArrayList = new ArrayList<>();
-//
-//            for (int j = 0; j < aya.length; j++) {
-//
-//                clickableSpanArrayList.add(new MyClickableSpan(aya[j].getText(),
-//                        Integer.parseInt(surahArabic[i].getIndex()),
-//                        Integer.parseInt(aya[j].getIndex())) {
-//                    @Override
-//                    public void onClick(View widget) {
-//
-//                        TextPaint ds = new TextPaint();
-//                        ds.setColor(Color.RED);
-//                        updateDrawState(ds);
-//
-//                        if (!isHighlightWord()) {
-//                            setHighlightWord(true);
-//                        }else{
-//                            setHighlightWord(false);
-//                        }
-//
-//
-//                        recyclerView.smoothScrollToPosition(getSurah());
-//                        widget.invalidate();
-//
-//
-//                        System.out.println("Aya Text: " + getAyaText());
-//                        System.out.println("Surah Index: " + getSurah());
-//                        System.out.println("Aya Index: " + getAya());
-//                        System.out.println("---------------------------");
-//
-//                        System.out.println("Length: " + clickableSpanArrayList.size());
-//
-//                    }
-//                });
-//
-//                spannableString.setSpan(clickableSpanArrayList.get(j), start.get(j), end.get(j), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-//            }
-
         Aya[] firstAya = surahArabic[0].getAya();
         String bismillah = firstAya[0].getText();
 
         ArrayList<ArrayList<MyClickableSpan>> allSpans = new ArrayList<>();
+
+        int positionCounter = 0;
+
         for (int i = 0; i < surahArabic.length; i++) {
             Aya[] aya = surahArabic[i].getAya();
 
@@ -181,7 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
                 clickableSpanArrayList.add(new MyClickableSpan(aya[j].getText(),
                         Integer.parseInt(surahArabic[i].getIndex()),
-                        Integer.parseInt(aya[j].getIndex())) {
+                        Integer.parseInt(aya[j].getIndex()),
+                        positionCounter) {
                     @Override
                     public void onClick(final View widget) {
 
@@ -196,21 +148,12 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("Aya Text: " + getAyaText());
                         System.out.println("Surah Index: " + getSurah());
                         System.out.println("Aya Index: " + getAya());
-                        System.out.println("---------------------------");
-
                         System.out.println("Length: " + clickableSpanArrayList.size());
+                        System.out.println("---------------------------");
 
                         int surahNumber = getSurah();
                         ayaNumber = getAya();
                         int totalAya = clickableSpanArrayList.size();
-
-//                        if (surahNumber == 1 || surahNumber == 9) {
-//                            sourceURLS = new String[totalAya - ayaNumber + 1];
-//                            destinationURLS = new String[totalAya - ayaNumber + 1];
-//                        } else {
-//                            sourceURLS = new String[totalAya - ayaNumber];
-//                            destinationURLS = new String[totalAya - ayaNumber];
-//                        }
 
                         ArrayList<String> sourceURLS = new ArrayList<String>();
                         ArrayList<String> destinationURLS = new ArrayList<String>();
@@ -238,117 +181,133 @@ public class MainActivity extends AppCompatActivity {
                             isFolderCreated = audioFolder.mkdirs();
                         }
 
-                        int tempCounter = 0;
+                        for (int i = ayaNumber; i <= totalAya; i++) {
 
-                            for (int i = ayaNumber; i <= totalAya; i++) {
-
-                                if (i < 10) {
-                                    stringAyaNumber = "00" + i;
-                                } else if (i >= 10 && i < 100) {
-                                    stringAyaNumber = "0" + i;
-                                } else {
-                                    stringAyaNumber = String.valueOf(i);
-                                }
-
-                                String fileName = stringSurahNumber + stringAyaNumber + ".mp3";
-                                sourceURLS.add("http://www.collagewebtech.com/quranData/quranAudio/" + reciter + "/" + surahNumber + "/" + fileName);
-                                destinationURLS.add(audioFolderPath + stringSurahNumber + stringAyaNumber + ".mp3");
+                            if (i < 10) {
+                                stringAyaNumber = "00" + i;
+                            } else if (i >= 10 && i < 100) {
+                                stringAyaNumber = "0" + i;
+                            } else {
+                                stringAyaNumber = String.valueOf(i);
                             }
-//                    else {
-//                            for (int i = ayaNumber; i < totalAya; i++) {
-//
-//                                if (i < 10) {
-//                                    stringAyaNumber = "00" + i;
-//                                } else if (i >= 10 && i < 100) {
-//                                    stringAyaNumber = "0" + i;
-//                                } else {
-//                                    stringAyaNumber = String.valueOf(i);
-//                                }
-//
-//                                String fileName = stringSurahNumber + stringAyaNumber + ".mp3";
-//                                sourceURLS[tempCounter] = "http://www.collagewebtech.com/quranData/quranAudio/" + reciter + "/" + surahNumber + "/" + fileName;
-//                                destinationURLS[tempCounter++] = audioFolderPath + stringSurahNumber + stringAyaNumber + ".mp3";
-//                            }
-//                        }
 
-                        for (int i = 0; i < sourceURLS.size(); i++) {
-                            System.out.println(sourceURLS.get(i));
-                            System.out.println(destinationURLS.get(i));
-                            System.out.println("------------------------------");
+                            String fileName = stringSurahNumber + stringAyaNumber + ".mp3";
+                            sourceURLS.add("http://www.collagewebtech.com/quranData/quranAudio/" + reciter + "/" + surahNumber + "/" + fileName);
+                            destinationURLS.add(audioFolderPath + stringSurahNumber + stringAyaNumber + ".mp3");
                         }
+
+                        allAudioPaths = new ArrayList<>();
 
                         File[] audioFiles = audioFolder.listFiles();
 
-                        if (isFolderCreated){
-                            System.out.println("Audio File Length: " + audioFiles.length + ", Total Aya: " + totalAya);
-                        }
 
-                        allAudioPaths = new ArrayList<String>();
+                        if (audioFiles.length == totalAya){
+                            FileDescriptor fd = null;
+                            FileInputStream fis = null;
 
-                        final FileDownloadListener queueTarget = new FileDownloadListener() {
-                            @Override
-                            protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+
+                            for (int i = 0; i < audioFiles.length; i++) {
+                                allAudioPaths.add(audioFiles[i].getPath());
                             }
 
-                            @Override
-                            protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
-                                Log.d("Connected", "" + task.getDownloadId());
-                            }
+                            try {
+                                fis = new FileInputStream(destinationURLS.get(ayaNumber));
+                                fd = fis.getFD();
 
-                            @Override
-                            protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                            }
+                                if (fd != null && fd.valid()) {
 
-                            @Override
-                            protected void blockComplete(BaseDownloadTask task) {
-                            }
-
-                            @Override
-                            protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
-                                task.start();
-                            }
-
-                            @Override
-                            protected void completed(BaseDownloadTask task) {
-                                Log.d("Completed", "Completed");
-
-                                allAudioPaths.add(task.getPath());
-
-                                if (allAudioPaths.size() == 1) {
-                                    FileDescriptor fd = null;
-                                    FileInputStream fis = null;
-
-                                    try {
-                                        fis = new FileInputStream(allAudioPaths.get(0));
-                                        fd = fis.getFD();
-
-                                        if (fd != null && fd.valid()) {
-
-                                            mediaPlayer.reset();
-                                            mediaPlayer.setDataSource(fd);
-                                            mediaPlayer.prepare();
-                                            mediaPlayer.start();
-                                        }
-
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                                    mediaPlayer.reset();
+                                    mediaPlayer.setDataSource(fd);
+                                    mediaPlayer.prepare();
+                                    mediaPlayer.start();
                                 }
-                            }
 
-                            @Override
-                            protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                            }
+                                System.out.println("Audio File Length: " + audioFiles.length + ", Total Aya: " + totalAya);
 
-                            @Override
-                            protected void error(BaseDownloadTask task, Throwable e) {
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                        }else{
 
-                            @Override
-                            protected void warn(BaseDownloadTask task) {
+
+                            final FileDownloadListener queueTarget = new FileDownloadListener() {
+                                @Override
+                                protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                                }
+
+                                @Override
+                                protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
+                                    Log.d("Connected", "" + task.getDownloadId());
+                                }
+
+                                @Override
+                                protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                                }
+
+                                @Override
+                                protected void blockComplete(BaseDownloadTask task) {
+                                }
+
+                                @Override
+                                protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
+                                    task.start();
+                                }
+
+                                @Override
+                                protected void completed(BaseDownloadTask task) {
+//                                Log.d("Completed", "Completed");
+
+                                    allAudioPaths.add(task.getPath());
+
+                                    if (allAudioPaths.size() == 1) {
+                                        FileDescriptor fd = null;
+                                        FileInputStream fis = null;
+
+                                        try {
+                                            fis = new FileInputStream(allAudioPaths.get(0));
+                                            fd = fis.getFD();
+
+                                            if (fd != null && fd.valid()) {
+
+                                                mediaPlayer.reset();
+                                                mediaPlayer.setDataSource(fd);
+                                                mediaPlayer.prepare();
+                                                mediaPlayer.start();
+                                            }
+
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                                }
+
+                                @Override
+                                protected void error(BaseDownloadTask task, Throwable e) {
+                                    e.printStackTrace();
+                                }
+
+                                @Override
+                                protected void warn(BaseDownloadTask task) {
+                                }
+                            };
+
+                            for (int i = 0; i < sourceURLS.size(); i++) {
+                                FileDownloader.getImpl().create(sourceURLS.get(i)).setPath(destinationURLS.get(i)).setAutoRetryTimes(5)
+                                        .setCallbackProgressTimes(0) // why do this? in here i assume do not need callback each task's `FileDownloadListener#progress`, so in this way reduce ipc will be effective optimization
+                                        .setListener(queueTarget)
+                                        .ready();
                             }
-                        };
+
+                            if (HelperFunctions.isOnline(MainActivity.this)) {
+                                FileDownloader.getImpl().start(queueTarget, true);
+                            } else {
+                                Toast.makeText(MainActivity.this, "No internet connection!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
                         clickedCounter = 0;
 
@@ -373,9 +332,33 @@ public class MainActivity extends AppCompatActivity {
                                                 mediaPlayer.prepare();
                                                 mediaPlayer.start();
                                                 clickableSpanArrayList.get(ayaNumber - 1).setHighlightWord(false);
-                                                clickableSpanArrayList.get(ayaNumber++).setHighlightWord(true);
+                                                MyClickableSpan currentSpan = clickableSpanArrayList.get(ayaNumber++);
+                                                currentSpan.setHighlightWord(true);
+
+                                                TextView textView = (TextView) widget;
+                                                SpannableString completeText = (SpannableString)(textView).getText();
+                                                Layout textViewLayout = textView.getLayout();
+
+                                                String tempString = currentSpan.getAyaText();
+
+                                                int startOffsetOfClickedText = completeText.getSpanStart(tempString);
+                                                int endOffsetOfClickedText = completeText.getSpanEnd(tempString);
+//// Get the rectangle of the clicked text
+                                                int currentLineStartOffset = textViewLayout.getLineForOffset((int)startOffsetOfClickedText);
+//                                                int currentLineEndOffset = textViewLayout.getLineForOffset((int)endOffsetOfClickedText);
+//
+//                                                System.out.println("Line Start: " + currentLineStartOffset);
+//                                                System.out.println("Line end: " + currentLineEndOffset);
+
+//                                                Layout textViewLay = textView.getLayout();
+//                                                int posY = textViewLay.getLineTop(0);
+
+                                                System.out.println("Scroll Positon: " + currentSpan.getPosition() + 1);
+
                                                 widget.invalidate();
                                                 recyclerView.getAdapter().notifyDataSetChanged();
+                                                linearLayoutManager.scrollToPositionWithOffset(currentSpan.getPosition() + 1, 0);
+
                                             }
 
                                         } catch (IOException e) {
@@ -389,19 +372,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-                        for (int i = 0; i < sourceURLS.size(); i++) {
-                            FileDownloader.getImpl().create(sourceURLS.get(i)).setPath(destinationURLS.get(i)).setAutoRetryTimes(5)
-                                    .setCallbackProgressTimes(0) // why do this? in here i assume do not need callback each task's `FileDownloadListener#progress`, so in this way reduce ipc will be effective optimization
-                                    .setListener(queueTarget)
-                                    .ready();
-                        }
-
-                        if (HelperFunctions.isOnline(MainActivity.this)) {
-                            FileDownloader.getImpl().start(queueTarget, true);
-                        } else {
-                            Toast.makeText(MainActivity.this, "No internet connection!", Toast.LENGTH_SHORT).show();
-                        }
-
                     }
                 });
 
@@ -413,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if ((j + 1) % 10 == 0){
                     arrayList.add(new AyaHolder(new SpannableString(sb)));
+                    positionCounter++;
                     sb = new SpannableStringBuilder();
                     sectionIndex++;
                 }
@@ -420,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             arrayList.add(new AyaHolder(new SpannableString(sb)));
+            positionCounter+=2;
             sectionIndex++;
 
             allSpans.add(clickableSpanArrayList);
@@ -446,6 +418,7 @@ public class MainActivity extends AppCompatActivity {
         String ayaText;
         int surah;
         int aya;
+        int position;
 
         boolean highlightWord = false;
 
@@ -457,11 +430,12 @@ public class MainActivity extends AppCompatActivity {
             this.highlightWord = highlightWord;
         }
 
-        public MyClickableSpan(String ayaText, int surah, int aya) {
+        public MyClickableSpan(String ayaText, int surah, int aya, int position) {
             super();
             this.ayaText = ayaText;
             this.surah = surah;
             this.aya = aya;
+            this.position = position;
         }
 
         public String getAyaText() {
@@ -479,6 +453,14 @@ public class MainActivity extends AppCompatActivity {
                 ds.bgColor = Color.TRANSPARENT;
             }
 
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public void setPosition(int position) {
+            this.position = position;
         }
 
         public void setAyaText(String ayaText) {
