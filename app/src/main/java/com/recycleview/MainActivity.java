@@ -19,6 +19,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,10 +59,22 @@ public class MainActivity extends AppCompatActivity {
     private int ayaNumber;
     private MyClickableSpan lastClickedSpan = null;
 
+    @Bind(R.id.next_button)
+    ImageButton nextButton;
+
+    @Bind(R.id.play_button)
+    ImageButton playButton;
+
+    @Bind(R.id.previous_button)
+    ImageButton previousButton;
+    private int surahNumber;
+    ArrayList<ArrayList<MyClickableSpan>> allSpans;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
 
@@ -76,6 +91,127 @@ public class MainActivity extends AppCompatActivity {
                 DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST);
         recyclerView.addItemDecoration(itemDecoration);
 
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayer != null) {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.pause();
+                    } else {
+                        mediaPlayer.start();
+                    }
+                }
+            }
+        });
+
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayer != null) {
+
+                    ArrayList<MyClickableSpan> clickableSpans = allSpans.get(surahNumber - 1);
+
+                    if (ayaNumber > 0){
+
+                        clickableSpans.get(ayaNumber - 1).setHighlightWord(false);
+                        ayaNumber--;
+
+                        MyClickableSpan clickableSpan = clickableSpans.get(ayaNumber - 1);
+                        clickableSpan.setHighlightWord(true);
+
+                        System.out.println(clickableSpan.getAyaText());
+                        System.out.println(clickableSpan.getAya());
+
+                        FileDescriptor fd = null;
+                        FileInputStream fis = null;
+
+                        try {
+
+                            File baseDir = Environment.getExternalStorageDirectory();
+                            String audioFolderPath = baseDir.getAbsolutePath() + "/BeABetterMuslim/Audio/" + surahNumber + "/";
+                            String path = audioFolderPath + HelperFunctions.formatNumber(surahNumber) +
+                                    HelperFunctions.formatNumber(ayaNumber) + ".mp3";
+
+                            fis = new FileInputStream(path);
+                            fd = fis.getFD();
+
+                            if (fd != null && fd.valid()) {
+                                mediaPlayer.stop();
+                                mediaPlayer.reset();
+                                mediaPlayer.setDataSource(fd);
+                                mediaPlayer.prepare();
+                                mediaPlayer.start();
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        recyclerView.getAdapter().notifyDataSetChanged();
+                    }else{
+                        nextButton.setEnabled(false);
+                    }
+
+                }
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (mediaPlayer != null) {
+
+                    ArrayList<MyClickableSpan> clickableSpans = allSpans.get(surahNumber - 1);
+
+                    if (ayaNumber < clickableSpans.size()){
+
+                        clickableSpans.get(ayaNumber - 1).setHighlightWord(false);
+                        ayaNumber++;
+
+                        MyClickableSpan clickableSpan = clickableSpans.get(ayaNumber - 1);
+                        clickableSpan.setHighlightWord(true);
+
+                        System.out.println(clickableSpan.getAyaText());
+                        System.out.println(clickableSpan.getAya());
+
+                        FileDescriptor fd = null;
+                        FileInputStream fis = null;
+
+                        try {
+
+                            File baseDir = Environment.getExternalStorageDirectory();
+                            String audioFolderPath = baseDir.getAbsolutePath() + "/BeABetterMuslim/Audio/" + surahNumber + "/";
+                            String path = audioFolderPath + HelperFunctions.formatNumber(surahNumber) +
+                                    HelperFunctions.formatNumber(ayaNumber) + ".mp3";
+
+                            fis = new FileInputStream(path);
+                            fd = fis.getFD();
+
+                            if (fd != null && fd.valid()) {
+                                mediaPlayer.stop();
+                                mediaPlayer.reset();
+                                mediaPlayer.setDataSource(fd);
+                                mediaPlayer.prepare();
+                                mediaPlayer.start();
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        recyclerView.getAdapter().notifyDataSetChanged();
+                    }else{
+                        nextButton.setEnabled(false);
+                    }
+
+                }
+
+            }
+
+        });
 
         ArrayList<AyaHolder> arrayList = new ArrayList<>();
 
@@ -116,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
         Aya[] firstAya = surahArabic[0].getAya();
         String bismillah = firstAya[0].getText();
 
-        ArrayList<ArrayList<MyClickableSpan>> allSpans = new ArrayList<>();
+        allSpans = new ArrayList<>();
 
         int positionCounter = 0;
 
@@ -151,24 +287,15 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("Length: " + clickableSpanArrayList.size());
                         System.out.println("---------------------------");
 
-                        int surahNumber = getSurah();
+                        surahNumber = getSurah();
                         ayaNumber = getAya();
                         int totalAya = clickableSpanArrayList.size();
 
-                        ArrayList<String> sourceURLS = new ArrayList<String>();
-                        ArrayList<String> destinationURLS = new ArrayList<String>();
+                        ArrayList<String> sourceURLS = new ArrayList<>();
+                        ArrayList<String> destinationURLS = new ArrayList<>();
 
-
-                        String stringSurahNumber;
+                        String stringSurahNumber = HelperFunctions.formatNumber(surahNumber);
                         String stringAyaNumber;
-
-                        if (surahNumber < 10) {
-                            stringSurahNumber = "00" + surahNumber;
-                        } else if (surahNumber >= 10 && surahNumber < 100) {
-                            stringSurahNumber = "0" + surahNumber;
-                        } else {
-                            stringSurahNumber = String.valueOf(surahNumber);
-                        }
 
                         File baseDir = Environment.getExternalStorageDirectory();
                         String audioFolderPath = baseDir.getAbsolutePath() + "/BeABetterMuslim/Audio/" + surahNumber + "/";
@@ -183,13 +310,7 @@ public class MainActivity extends AppCompatActivity {
 
                         for (int i = ayaNumber; i <= totalAya; i++) {
 
-                            if (i < 10) {
-                                stringAyaNumber = "00" + i;
-                            } else if (i >= 10 && i < 100) {
-                                stringAyaNumber = "0" + i;
-                            } else {
-                                stringAyaNumber = String.valueOf(i);
-                            }
+                            stringAyaNumber = HelperFunctions.formatNumber(i);
 
                             String fileName = stringSurahNumber + stringAyaNumber + ".mp3";
                             sourceURLS.add("http://www.collagewebtech.com/quranData/quranAudio/" + reciter + "/" + surahNumber + "/" + fileName);
@@ -197,21 +318,25 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         allAudioPaths = new ArrayList<>();
+                        lastClickedSpan = allSpans.get(surahNumber - 1).get(ayaNumber);
 
                         File[] audioFiles = audioFolder.listFiles();
 
+                        if (FileDownloader.getImpl().isServiceConnected()){
+                            FileDownloader.getImpl().pauseAll();
+                        }
 
                         if (audioFiles.length == totalAya){
                             FileDescriptor fd = null;
                             FileInputStream fis = null;
 
 
-                            for (int i = 0; i < audioFiles.length; i++) {
-                                allAudioPaths.add(audioFiles[i].getPath());
+                            for (int i = 0; i < destinationURLS.size(); i++) {
+                                allAudioPaths.add(destinationURLS.get(i));
                             }
 
                             try {
-                                fis = new FileInputStream(destinationURLS.get(ayaNumber));
+                                fis = new FileInputStream(allAudioPaths.get(0));
                                 fd = fis.getFD();
 
                                 if (fd != null && fd.valid()) {
@@ -227,8 +352,8 @@ public class MainActivity extends AppCompatActivity {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                        }else{
-
+                        }
+                        else{
 
                             final FileDownloadListener queueTarget = new FileDownloadListener() {
                                 @Override
@@ -355,7 +480,6 @@ public class MainActivity extends AppCompatActivity {
 
                                                 System.out.println("Scroll Positon: " + currentSpan.getPosition() + 1);
 
-                                                widget.invalidate();
                                                 recyclerView.getAdapter().notifyDataSetChanged();
                                                 linearLayoutManager.scrollToPositionWithOffset(currentSpan.getPosition() + 1, 0);
 
@@ -409,8 +533,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Apply this adapter to the RecyclerView
         recyclerView.setAdapter(mSectionedAdapter);
-
-
     }
 
 

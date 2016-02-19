@@ -102,6 +102,21 @@ public class HelperFunctions {
         return numbers;
     }
 
+    public static String formatNumber(int number){
+
+        String string = new String();
+
+        if (number < 10) {
+            string = "00" + number;
+        } else if (number >= 10 && number < 100) {
+            string = "0" + number;
+        } else {
+            string = String.valueOf(number);
+        }
+
+        return string;
+    }
+
     public static String stringForTime(int timeMs) {
 
         StringBuilder mFormatBuilder = new StringBuilder();
