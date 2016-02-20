@@ -5,7 +5,7 @@ import android.text.SpannableString;
 /**
  * Created by Asad on 2/7/2016.
  */
-public class AyaHolder {
+public class WithoutTranslationHolder {
 
     SpannableString aya;
 
@@ -17,7 +17,7 @@ public class AyaHolder {
         this.aya = aya;
     }
 
-    public AyaHolder(SpannableString aya) {
+    public WithoutTranslationHolder(SpannableString aya) {
 
         this.aya = aya;
     }

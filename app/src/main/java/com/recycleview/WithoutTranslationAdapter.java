@@ -12,11 +12,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class CustomAdapter extends
-        RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+public class WithoutTranslationAdapter extends
+        RecyclerView.Adapter<WithoutTranslationAdapter.ViewHolder> {
 
     Context context;
-    CustomAdapter adapter;
+    WithoutTranslationAdapter adapter;
     private Typeface ayaFont;
 
 
@@ -27,21 +27,18 @@ public class CustomAdapter extends
         LayoutInflater inflater = LayoutInflater.from(context);
 
         ayaFont = Typeface.createFromAsset(context.getAssets(), "fonts/PDMS_Saleem_QuranFont-signed.ttf");
-        // Inflate the custom layout
-        View ayaView = inflater.inflate(R.layout.row_item, parent, false);
 
-        // Return a new holder instance
+        View ayaView = inflater.inflate(R.layout.without_trans_row_item, parent, false);
 
         return new ViewHolder(ayaView);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        AyaHolder ayaHolder = ayaHolders.get(position);
+        WithoutTranslationHolder withoutTranslationHolder = withoutTranslationHolders.get(position);
 
-        // Set item views based on the data model
         TextView textView = holder.textView;
-        textView.setText(ayaHolder.getAya());
+        textView.setText(withoutTranslationHolder.getAya());
         textView.setTypeface(ayaFont);
 
     }
@@ -49,14 +46,14 @@ public class CustomAdapter extends
 
     @Override
     public int getItemCount() {
-        return ayaHolders.size();
+        return withoutTranslationHolders.size();
     }
 
-    private List<AyaHolder> ayaHolders;
+    private List<WithoutTranslationHolder> withoutTranslationHolders;
 
     // Pass in the contact array into the constructor
-    public CustomAdapter(List<AyaHolder> ayaHolders) {
-        this.ayaHolders = ayaHolders;
+    public WithoutTranslationAdapter(List<WithoutTranslationHolder> withoutTranslationHolders) {
+        this.withoutTranslationHolders = withoutTranslationHolders;
     }
 
     // Provide a direct reference to each of the views within a data item

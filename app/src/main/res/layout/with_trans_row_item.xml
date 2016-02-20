@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    card_view:cardCornerRadius="4dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#EDEEE0"
+        android:padding="10dp"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:id="@+id/arabic_verse_textview"
+            android:text="Lorem Ipsum Donar"
+            android:gravity="center"
+            android:textSize="25sp"
+            android:textColor="#000"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="80dp"
+            android:paddingLeft="80dp"
+            android:id="@+id/separatorImageView"
+            android:src="@drawable/translation_separator"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:id="@+id/translation_verse_textview"
+            android:gravity="center"
+            android:text="Lorem Ipsum Donar"
+            android:textSize="17sp"
+            android:textColor="#000"
+            />
+
+
+
+    </LinearLayout>
+
+
+
+
+</android.support.v7.widget.CardView>
